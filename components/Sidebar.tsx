@@ -1,6 +1,6 @@
 import React from 'react';
-import { Type, MousePointer2, CheckSquare, Circle, Download, Wand2, Loader2, Trash2 } from 'lucide-react';
-import { FieldType, FormElement, GeminiSuggestion } from '../types';
+import { Type, MousePointer2, CheckSquare, Circle, Download, Trash2, Loader2 } from 'lucide-react';
+import { FieldType, FormElement } from '../types';
 
 interface SidebarProps {
   activeTool: FieldType | 'select';
@@ -10,12 +10,6 @@ interface SidebarProps {
   deleteElement: (id: string) => void;
   onDownload: () => void;
   isDownloading: boolean;
-  
-  // AI Props
-  isAnalyzing: boolean;
-  suggestions: GeminiSuggestion[];
-  onAnalyze: () => void;
-  onApplySuggestion: (s: GeminiSuggestion) => void;
 }
 
 const Sidebar: React.FC<SidebarProps> = ({
@@ -25,11 +19,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   updateElement,
   deleteElement,
   onDownload,
-  isDownloading,
-  isAnalyzing,
-  suggestions,
-  onAnalyze,
-  onApplySuggestion
+  isDownloading
 }) => {
   return (
     <div className="w-80 bg-white border-r border-slate-200 flex flex-col h-full shadow-xl z-20">
@@ -95,45 +85,6 @@ const Sidebar: React.FC<SidebarProps> = ({
               <span className="text-xs font-medium">Radio</span>
             </button>
           </div>
-        </section>
-
-        <hr className="border-slate-100" />
-
-        {/* AI Assistant Section */}
-        <section>
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wider flex items-center gap-1">
-              <Wand2 size={12} /> Gemini Assistant
-            </h3>
-          </div>
-          
-          <button
-            onClick={onAnalyze}
-            disabled={isAnalyzing}
-            className="w-full py-2 px-3 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white rounded-md shadow-md flex items-center justify-center gap-2 text-sm font-medium transition-all disabled:opacity-70"
-          >
-            {isAnalyzing ? <Loader2 size={16} className="animate-spin" /> : <Wand2 size={16} />}
-            {isAnalyzing ? 'Analyzing...' : 'Detect Fields'}
-          </button>
-
-          {suggestions.length > 0 && (
-            <div className="mt-4 space-y-2 animate-fadeIn">
-               <p className="text-xs text-slate-500 mb-2">Click to add suggested field:</p>
-               {suggestions.map((s, i) => (
-                 <div 
-                   key={i} 
-                   onClick={() => onApplySuggestion(s)}
-                   className="group flex items-center justify-between p-2 bg-slate-50 hover:bg-indigo-50 border border-slate-100 hover:border-indigo-200 rounded-md cursor-pointer transition-colors"
-                 >
-                   <div className="flex flex-col">
-                     <span className="text-xs font-semibold text-slate-700">{s.name}</span>
-                     <span className="text-[10px] text-slate-400">{s.type}</span>
-                   </div>
-                   <div className="text-indigo-600 opacity-0 group-hover:opacity-100 transition-opacity text-xs font-bold">+</div>
-                 </div>
-               ))}
-            </div>
-          )}
         </section>
 
         <hr className="border-slate-100" />

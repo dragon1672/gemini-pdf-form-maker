@@ -1,5 +1,5 @@
 {
   "name": "FormFlow PDF Editor",
-  "description": "An interactive PDF form builder powered by Gemini. Upload PDFs, visually place fields, and download the interactive result.",
+  "description": "An interactive PDF form builder. Upload PDFs, visually place fields, and download the interactive result.",
   "requestFramePermissions": []
 }

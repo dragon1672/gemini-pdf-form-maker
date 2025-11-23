@@ -32,15 +32,6 @@ export const renderPageToCanvas = async (
   return { width: viewport.width, height: viewport.height };
 };
 
-export const extractTextFromPage = async (
-  pdfDoc: pdfjsLib.PDFDocumentProxy,
-  pageIndex: number
-): Promise<string> => {
-  const page = await pdfDoc.getPage(pageIndex + 1);
-  const textContent = await page.getTextContent();
-  return textContent.items.map((item: any) => item.str).join(' ');
-};
-
 export const savePdfWithFields = async (
   originalPdfBytes: ArrayBuffer,
   elements: FormElement[],

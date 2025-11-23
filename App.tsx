@@ -5,9 +5,8 @@ import { Upload, ChevronLeft, ChevronRight, ZoomIn, ZoomOut } from 'lucide-react
 
 import Sidebar from './components/Sidebar';
 import DraggableField from './components/DraggableField';
-import { loadPdfDocument, renderPageToCanvas, savePdfWithFields, extractTextFromPage } from './services/pdfService';
-import { analyzeFormText } from './services/geminiService';
-import { FormElement, FieldType, PdfPageInfo, GeminiSuggestion } from './types';
+import { loadPdfDocument, renderPageToCanvas, savePdfWithFields } from './services/pdfService';
+import { FormElement, FieldType, PdfPageInfo } from './types';
 
 const DEFAULT_SCALE = 1.5;
 
@@ -28,10 +27,6 @@ const App: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [pageInfo, setPageInfo] = useState<{ [key: number]: PdfPageInfo }>({});
 
-  // AI State
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [suggestions, setSuggestions] = useState<GeminiSuggestion[]>([]);
-
   // Handle File Upload
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -44,7 +39,6 @@ const App: React.FC = () => {
       setTotalPages(loadedPdf.numPages);
       setCurrentPage(0);
       setElements([]); // Reset elements on new file
-      setSuggestions([]);
     }
   };
 
@@ -130,50 +124,6 @@ const App: React.FC = () => {
     }
   };
 
-  // AI Analysis
-  const handleAnalyze = async () => {
-    if (!pdfDoc) return;
-    setIsAnalyzing(true);
-    try {
-      const text = await extractTextFromPage(pdfDoc, currentPage);
-      const results = await analyzeFormText(text);
-      setSuggestions(results);
-    } catch (err) {
-      console.error("Analysis failed", err);
-    } finally {
-      setIsAnalyzing(false);
-    }
-  };
-
-  const handleApplySuggestion = (suggestion: GeminiSuggestion) => {
-    // Place suggested element in center of view effectively as a "waiting to be placed" item
-    // Or just stash it in top left corner for user to drag
-    if (!containerRef.current) return;
-    
-    let width = 120;
-    let height = 30;
-    if (suggestion.type === FieldType.CHECKBOX || suggestion.type === FieldType.RADIO) {
-        width = 24;
-        height = 24;
-    }
-
-    const newElement: FormElement = {
-      id: uuidv4(),
-      type: suggestion.type,
-      pageIndex: currentPage,
-      x: 50, // Default top left placement
-      y: 50 + (elements.filter(e => e.pageIndex === currentPage).length * 40), // Cascade them slightly
-      width,
-      height,
-      name: suggestion.name,
-      required: false
-    };
-
-    setElements([...elements, newElement]);
-    // Remove from suggestions to avoid duplicates
-    setSuggestions(prev => prev.filter(s => s !== suggestion));
-  };
-
   // UI Helpers
   const currentElements = elements.filter(el => el.pageIndex === currentPage);
   const selectedElement = elements.find(el => el.id === selectedElementId) || null;
@@ -215,10 +165,6 @@ const App: React.FC = () => {
         deleteElement={deleteElement}
         onDownload={handleDownload}
         isDownloading={isDownloading}
-        isAnalyzing={isAnalyzing}
-        suggestions={suggestions}
-        onAnalyze={handleAnalyze}
-        onApplySuggestion={handleApplySuggestion}
       />
 
       {/* Main Workspace */}
